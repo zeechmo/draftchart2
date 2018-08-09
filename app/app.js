@@ -35,9 +35,9 @@ local_app.prototype.init = function (app) {
 	})
 	
 	app.get('/draftboard', (request, response) => {  
-
 		var format = request.query.format || 'standard';
 		var teams = request.query.teams;
+		var twoQB = request.query.twoQB || '1QB';
 		
 		if (teams === '8 team') {
 			teams = 8;
@@ -56,7 +56,9 @@ local_app.prototype.init = function (app) {
 		}
 		
 		var obj = {
-			filename: format === "PPR" ? 'assets/data/ppr_rank.csv' : 'assets/data/standard_rank.csv'
+			filename: format === "PPR" ? 
+			(twoQB === "2QB" ? 'assets/data/draftchart_ppr2qb_rank.csv' : 'assets/data/draftchart_ppr_rank.csv') : 
+			(twoQB === "2QB" ? 'assets/data/draftchart_standard2qb_rank.csv' : 'assets/data/draftchart_standard_rank.csv')
 		};
 		csvtojson.parse(obj, function(err, json) {
 			response.send(JSON.stringify(json));

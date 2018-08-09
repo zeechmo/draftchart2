@@ -17,6 +17,8 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+	
 	
     <style>
 	  #main { width: 100% }
@@ -27,11 +29,22 @@
 	  #grid { margin: auto;}
       #sortable { list-style-type: none; padding: 0;}
       #sortable li { margin: 1px 1px 1px 1px;  float: left; width: 75px; height: 65px;  text-align: center; display: table-cell; cursor: grab; color: #333333; font-size: 11px; position: relative; line-height: 14px;}
-	  #nav { background-color: #24292e; font-size: large; color: #19bffe; padding-top: 20px; padding-bottom: 10px; width: 100%; text-align: center; font-family: verdana; }
+	  #nav { float: left; background-color: #404040; color: #19bffe; padding-top: 20px; padding-bottom: 10px; width: 100%; text-align: center; font-family: verdana; vertical-align: top; }
+	  #nav .col3 { width: 33%; display: inline-block; vertical-align: top;}
+	  #footer {width: 100%; color: #19bffe; background-color: #24292e; float: left;}
+	  #footer .col2 { width: 50%; vertical-align: top; margin-left: auto; margin-right: auto;}
+	  #footer .pheader {font-weight: bold; text-align: center; padding: 30px; text-size: large;}
+	  #footer .p2header {color: white !important}
+	  #nav p {font-size: small;  text-align: left; padding: 10px;}
+	  #nav .pheader {font-size: small; font-weight: bold; text-align: center !important; padding-top: 5px !important; padding-bottom: 0px !important; margin-bottom: 0px;}
+	  
 	  .subheader { font-size: small; color: #f4D03F;}
 	  #controls { width: 100%; text-align: center; margin-bottom: 10px; }
 	  #save-controls {margin-bottom: 10px;  display: table;  margin-left: auto; margin-right: auto;}
 	  #format { margin-bottom: 10px; margin-left: auto; margin-right: auto; display: table;}
+	  #results-format { margin-bottom: 10px; margin-left: auto; margin-right: auto; display: table;}
+	  .button-instructions { margin-left: auto; margin-right: auto; display: table; font-weight: bold; margin-bottom: 5px;}
+	  #positions { margin-bottom: 10px; margin-left: auto; margin-right: auto; display: table;}
 	  #saveload { float: left;  margin-right: 10px; }
 	  #save-controls .input-group {width: 300px;}
 	  .instructionsHeader { width: 100%; text-align: center;  color: #24292e; font-family: Verdana;}
@@ -39,16 +52,22 @@
 	  .instructionsul { width: 450px; margin-left: auto; margin-right: auto; }
 	  .RB .front { background-color: #19bffe; }
 	  .RB .back { background-color: #19bffe;}
+	  .RBCOLOR { background-color: #19bffe !important;}
 	  .WR .front { background-color: #87d37c; }
 	  .WR .back {background-color: #87d37c;}
+	  .WRCOLOR {background-color: #87d37c !important;}
 	  .QB .front { background-color: #f47983; }
 	  .QB .back {background-color: #f47983;}
+	  .QBCOLOR {background-color: #f47983 !important;}
 	  .TE .front { background-color: #f4D03F; }
 	  .TE .back {background-color: #f4D03F;}
-	  .PK .front { background-color: #E29C45; }
-	  .PK .back {background-color: #E29C45; }
-	  .DEF .front { background-color: #b390d4; }
-	  .DEF .back {background-color: #b390d4;}
+	  .TECOLOR {background-color: #f4D03F !important;}
+	  .K .front { background-color: #E29C45; }
+	  .K .back {background-color: #E29C45; }
+	  .KCOLOR {background-color: #E29C45 !important; }
+	  .DST .front { background-color: #b390d4; }
+	  .DST .back {background-color: #b390d4;}
+	  .DSTCOLOR {background-color: #b390d4 !important;}
 	  .dark .front { background-color: #444444;  color: #888888 !important; }
 	  .dark .back { background-color: #444444;  color: #888888 !important; }
 	  .vor { left: 3px; bottom: 1px; position: absolute;  color: #666666; }
@@ -155,6 +174,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.0/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
     <script>
 	
@@ -168,15 +188,16 @@
 		$("#sortable").empty();
 		
 		for (var i = 0; i < players.length; i++) {
+		
 			var playerName = players[i].playerName;
-			var position = players[i].position;
+			var position = players[i].position ? players[i].position.toUpperCase() : players[i].position;
 			var team = players[i].team;
 			if (playerName) {
 				var id = playerName + "|" + position + "|" + team;
 				$("#sortable")
 					.append("<li id='" + id + "' class='" + position + 
-					" flip-container'><div class='flipper'><div class='front'><div class='glyphicon glyphicon-star-empty favorite'></div>" + playerName + "<br />" + position + "<span class='vor'>" + (Math.round(players[i].vor) > 0 ? "+":"") + Math.round(players[i].vor) + "</span><span class='team'>" + players[i].team + "</span></div>" +
-					"<div class='back'><div class='glyphicon glyphicon-star-empty favorite'></div>Points: " + Math.round(players[i].points) + "<br />Cost: $" + players[i].auctionValue + "<br />VOR: " + Math.round(players[i].vor) + "</div></div></li>")
+					" flip-container'><div class='flipper'><div class='front'><div class='glyphicon glyphicon-star-empty favorite'></div>" + playerName + "<br />" + position + "<span class='vor'>" + (Math.round(players[i].VOR) > 0 ? "+":"") + Math.round(players[i].VOR) + "</span><span class='team'>" + players[i].team + "</span></div>" +
+					"<div class='back'><div class='glyphicon glyphicon-star-empty favorite'></div>Points: " + Math.round(players[i].projectedPoints) + "<br />Cost: $" + players[i].auction + "<br />VOR: " + Math.round(players[i].VOR) + "</div></div></li>")
 					.data("stats", {playerName: playerName, position: position});
 			}
 		}
@@ -209,17 +230,71 @@
 	}
 	
 	var getData = function(req) {
-		$.get(
-			"/draftboard",
-			req,
-			function(data, status) {
-				
-				var players = JSON.parse(data);
-				savedPlayers = players;
-			   
-				loadGrid(players, req.teams);
-			}
-		);	
+
+		if (req.resultsformat === "grid") {
+		
+			// hide table
+			$("#section-table").addClass("hidden");
+			$("#section-grid").removeClass("hidden");
+		
+			$.get(
+				"/draftboard",
+				req,
+				function(data, status) {
+					
+					var players = JSON.parse(data);
+					players = _.sortBy(players, function(player) {
+						return parseInt(player.adp, 10);
+					});
+					savedPlayers = players.slice(0,250);
+				   
+					loadGrid(savedPlayers, req.teams);
+				}
+			);
+		}
+		else {
+			// hide grid
+			$("#section-table").removeClass("hidden");
+			$("#section-grid").addClass("hidden");
+		
+			$.get(
+				"/draftboard",
+				req,
+				function(data, status) {
+					
+					var players = JSON.parse(data), cols;
+					players = _.sortBy(players, function(player) {
+						return parseInt(player.adp, 10);
+					});
+					savedPlayers = players.slice(0,250);
+
+					$("#drafttable").DataTable({
+						data: _.map(savedPlayers, function(player) {
+							return [player.playerName, player.position.toUpperCase(), player.team, player.adp, player.projectedPoints, player.rank, player.VOR, 
+							(req.twoQB === "2QB" ? "NA" : player.auction)]
+						}),
+						paging: false,
+						destroy: true,
+						order: [[ 3, "asc" ]],
+						columns: [
+							{ title: "Name" },
+							{ title: "Position" },
+							{ title: "Team" },
+							{ title: "ADP" },
+							{ title: "Projected Points" },
+							{ title: "Expert Rank" },
+							{ title: "VOR" },
+							{ title: "Auction" }
+						],
+				        createdRow: function ( row, data, index ) {
+							$('td', row).eq(1).addClass(data[1] + 'COLOR');
+						}
+					});
+					
+				}
+			);		
+		}
+			
 	}
 	
 	var toJson = function(players) {
@@ -241,16 +316,50 @@
 		});	
 		
 		// click handlers
-		$("#format").click(function() {
+		$("#positions").click(function() {
 			var format = $('#format > .btn.active').text();
 			var teams = parseInt($('#teams > .btn.active').val(), 10);
+			var resultsformat = $('#results-format > .btn.active').val();
+			var twoQB = $('#positions > .btn.active').val();
 			
 			getData({
 				format: format,
-				teams: teams
+				teams: teams,
+				twoQB: twoQB,
+				resultsformat: resultsformat
 			});
 
-			alert('Projected points have been updated to reflect a ' + format + ' scoring system.');
+		});
+		
+		// click handlers
+		$("#format").click(function() {
+			var format = $('#format > .btn.active').text();
+			var teams = parseInt($('#teams > .btn.active').val(), 10);
+			var resultsformat = $('#results-format > .btn.active').val();
+			var twoQB = $('#positions > .btn.active').val();
+			
+			getData({
+				format: format,
+				teams: teams,
+				twoQB: twoQB,
+				resultsformat: resultsformat
+			});
+
+		});
+		
+		$("#results-format").click(function() {
+
+			var resultsformat = $('#results-format > .btn.active').val();
+			var format = $('#format > .btn.active').text();
+			var teams = parseInt($('#teams > .btn.active').val(), 10);
+			var twoQB = $('#positions > .btn.active').val();
+			
+			getData({
+				format: format,
+				teams: teams,
+				twoQB: twoQB,
+				resultsformat: resultsformat
+			});		
 		});
 		
 		$("#save").click(function() {
@@ -387,7 +496,8 @@
 		
 		getData({
 		    format: 'standard',
-			teams: 12
+			teams: 12,
+			resultsformat: 'table'
 		});
 
     } );
@@ -402,8 +512,12 @@
 		
 		<section>
 			<div id="main">
-				<div id="nav"><!--DRAFTCHART <div class="subheader">DOMINATE YOUR DRAFT</div>--></div>
+
+				<div class="text">
+				
+				</div>
 				<div class="well">
+					<div class="button-instructions">Choose League Settings:</div>
 					<div id="controls">
 						 <div class="btn-group" id="teams">
 							<button type="button" id="8team" class="btn btn-default" value="8">8 team</button>
@@ -416,7 +530,17 @@
 						<button type="button" id="standard" class="btn btn-default active">Standard</button>
 						<button type="button" id="ppr" class="btn btn-default">PPR</button>
 					</div>
-					<div id="save-controls">
+					<!--
+					<div class="btn-group" id="positions">
+						<button type="button" id="oneQB" class="btn btn-default active" value="1QB">1 QB</button>
+						<button type="button" id="twoQB" class="btn btn-default" value="2QB">2 QB</button>
+					</div>-->
+					<div class="button-instructions">Display as:</div>
+					<div class="btn-group" id="results-format">
+						<button type="button" id="results-table" class="btn btn-default active" value="table">Table</button>
+						<button type="button" id="results-grid" class="btn btn-default" value="grid">Grid</button>
+					</div>
+					<!--<div id="save-controls">
 						<div class="btn-group" id="saveload">
 							<button type="button" id="load" class="btn btn-default">Load</button>
 							<button type="button" id="save" class="btn btn-default">Save</button>
@@ -428,27 +552,64 @@
 								</span>
 							</input>
 						</div>
+					</div>-->
+				</div>
+				
+				<section id="section-grid">
+					<div id="colHeader"></div>
+					<div id="grid">
+						<div id="rowHeader"></div>
+						<div id="sortableWrapper"><ul id="sortable"></ul></div>
 					</div>
-				</div>
-				<div class="instructionsHeader"><h3>Fantasy Football Rankings</h3></div>
-				<div class="instructions">
-					<ul class="instructionsul">
-						<li>Start with aggregated draft picks from fantasy experts</li>
-						<li>Drag and drop to create custom draft rankings</li>
-						<li>Star your favorites</li>
-						<li>Click to remove a player entirely from your rankings</li>
-						<li>Save your selections or email them to yourself</li>
-					</ul>
-				</div>
-				<div class="instructions"></div>
-				<div id="colHeader"></div>
-				<div id="grid">
-					<div id="rowHeader"></div>
-					<div id="sortableWrapper"><ul id="sortable"></ul></div>
-				</div>
+				</section>
+				<section id="section-table">
+					<table id="drafttable" class="display stripe"></table>
+				</section>
 			</div>
 		
 		</section>
+		
+		<div id="nav">
+			<div class="col3"><p class="pheader">WHAT IT IS</p><p>
+				This is your fantasy football primer, where the best projections meet cutting edge draft strategy.   View the top 250 players being drafted based on current ADP, with easily visible projections, rankings, and value over replacement ratings.  Know who your opponents will be drafting and know who you should draft to maximize value at each draft position.  Quickly customize the tool to your league settings and view projections based on the predictions of experts who have proven to be the most accurate over the last several years.  Easily view who are the best value picks at each draft slot against their average draft position.  Never reach for the player you want by knowing the true position they typically are drafted, allowing you to maximize value for each of your draft picks. 
+			</p></div>
+			<div class="col3"><p class="pheader">HOW TO USE</p><p>
+				This site was designed to bring simplicity and speed to your fantasy football draft preparation.  With a few click you can customize the tool to the most popular league settings.  View as a table to quickly scroll and find your target players or view as a grid which you can drag, drop, and sort to customize your own rankings.  Review the league based strategy at your leisure to mentally prepare to dominate your draft.
+			</p></div>
+			<div class="col3"><p class="pheader">WHY IT WORKS</p><p>
+				There is a concept in machine learning known as boosting in which you identify a set of predictors and weight each predictor according to how effective it is.  This tool identifies fantasy football experts who have shown to have the best predictions year after year, weights them accordingly, and creates aggregate projections for the best accuracy.  It also identifies positional scarcity and ranks players accordingly, you won’t see quarterbacks off the board in the first few rounds of our rankings because they will be a surplus of quality starters available in later rounds.  On the other hand, running backs typically get a boost, especially in larger league sizes where it can be difficult to find quality talent on the waiver wire.
+			</p></div>
+		</div>
+		<div id="footer">
+			<div class="col2"><p class="pheader">DRAFT STRATEGY AND ADVICE</p>
+				<p class="p2header">SAFETY FIRST:</p>
+				<p>Your most important pick in the draft is often found in the first round.  Don’t get me wrong, the goal of each round is to maximize the value of each pick however the first round must be tailored to find the closest thing to a guarantee for hitting a player’s projection.  If your first-round pick is a bust, you will better hope you hit homeruns in your late rounds or else you likely won’t be making the playoffs.  Statistically speaking, running backs are more likely to be injured than wide receivers, making them riskier picks.  I am not suggesting you steer your decision towards a wide receiver.  If you can grab an elite top-tier running back than you cannot pass up on the positional value.  On the contrary, if you are sitting towards the end of the first round and there are unknowns circulating around the second tier of picks, choosing a wide receiver that can consistently put up tier 1 WR numbers year after year is always a safe bet.</p>
+				<p class="p2header">STARTER ROUNDS:</p>
+				<p>Rounds two through six your filling out your starting roster at the skill positions.  Through six you should have 2-3 running backs, 2-3 wide receivers, and possibly a tight end depending on the value presented during your picks.  You should not have a quarterback unless you are in a two quarter-back league, or Aaron Rodgers/Russel Wilson fell to the sixth round.  The goals of these rounds are to maximize value per round.  Using this draft tool, you can pick out the players primed for bigger points per their position.  Keep in mind the positional scarcity of your league.  As a rule of thumb the more teams in your league the greater the value of running backs.  You can find the best value in drafting your starting wide receivers with your latter picks.</p>
+				<p class="p2header">HITTING HOME-RUNS:</p>
+				<p>After you have identified your starters is when most draft rankings begin to let you down.  You essentially have two options with your picks, you are either drafting for depth or drafting for breakouts.  Don’t get me wrong, it is important to have an extra running back for unforeseen injuries, bye weeks etc., however you should not be using these picks to stock up on replacement level talent.  Take a pick to get your quarterback, get an extra running back and then swing for the fences.  You should be investing five to six picks on younger players that are best setup to succeed.  By that I mean you aren’t drafting a player simply because he is a backup to an elite talent.  You need to maximize the odds you can find a stud or two with your middle to later round picks.  Target players who have a couple paths to stardom.  Look for players who either can excel as a third down back or are not only a handcuff but potentially more talented than the incumbent starter, especially an oft-injured one.  Think of players like Alvin Kamara and Jordan Howard who can almost single handedly swing a team into the playoffs.  You are going to miss on more of these picks than you will hit, so maximize your odds to find at least one.  While Royce Freeman is quickly rising-up draft boards this year, looking at his college career he was consistently missing time due to injuries, look at targeting Devontae Booker late in drafts as the potential pass catching starter in an offense bound to improve with better quarterback play.</p>
+				<p class="p2header">ROSTERING MULTIPLE NON SKILL POSITIONS:</p>
+				<p>I rarely if ever see a reason to hold onto to multiple tight ends or quarterbacks.  There is only one reason I would consider holding multiple defenses or kickers, and that is if they are top 5 per their position and it is only a one week hold for their bye week.  You need these extra roster spots to maximize your odds of hitting a home run a skill position.  Quarterbacks and tight ends can be streamed in smaller leagues.  Save your bench for the wide receiver and running back positions, they are the key to winning your league.</p>
+				<p class="p2header">DEFENSE FALLACY:</p>
+				<p>Lowly defenses and kickers are downgraded at draft day.  Most draft advice selects using your last two picks to select these.  This rule can easily be expanded to use two of your last three picks on these positions.  I have no problems opting to pick a defense a round early to get a bigger selection.  Target defenses that have invested high draft capitol into the position.  There is a reason the Jaguars dominated in 2017, they drafted early round corner backs and pass rushers in the last couple years.  Look for the 2018 equivalents of turnaround defenses, hint: think Green Bay.  If you miss on a defense do not spare, my favorite time to grab a top defense is when its dropped during my opposing teams bye week.  I will be ready to pounce on the waiver wire when that happens, every point matters.</p>
+				<p class="p2header">PLACING KICKERS:</p>
+				<p>Statistically the best of indicator of how many points a kicker will score is how many points will the offense put up.  Find a top five offense and draft accordingly, if you are wrong you will find someone later, no sweat.</p>
+				<p class="p2header">IDENTIFYING CHANGE:</p>
+				<p>The most difficult part of player evaluation from year to year is identifying how a player’s performance will change based on changes in its environment.  By this I mean did a wide receiver get a new quarterback?  Did a running back get an upgrade or downgrade at offensive line?  Did a new offensive coordinator or head coach come into town?  These types of factors will have a significant impact and predicting this is the key to finding studs over duds.  Looking at recent years we can see the effect of Kyle Shanahan leaving Atlanta and how it affected the skill positions of the Falcons.  Matt Ryan’s numbers dropped, Julio Jones numbers dropped, Devona Freeman numbers dropped, etc.…  On the other side, look at how Sean McVay moving to the Rams and turning around the worst offense in football to the best in a single year.  No longer is Todd Gurley seeing 8-man boxes, and what a difference that made.  When there is uncertainty aim to target towards the mean.  If a top offensive coordinator left in the off-season, assume a regression is coming to that team.  The inverse may or may not be true as well, if an underperforming coach is on its way out, change can be for the better.  An example to target in 2018 is Matt LeFleur leaving the top ranked Rams offense to become the coach of the Titans, a team who has talent but has seemed to underperform in recent years.</p>
+				<p class="p2header">WHEN IN DOUBT, GO YOUNG:</p>
+				<p>With experienced players you know what you are going to get.  When picking in the later rounds it is often replacement level talent.  I would rather take a risk on an unknown player with a higher ceiling, than an experienced vet with a lower ceiling.  Remember you have your starters in place, its time to find players that can meet or exceed them.  Sure, the replacements on the waiver wire may not be as good, but I would take a point or two less per week taking a swing for the fences.</p>
+				<p class="p2header">ROOKIE WIDE RECEIVERS:</p>
+				<p>For whatever reason wide receiver seems to have a rough transition to the NFL.  Maybe it is due to the difficulty of learning an NFL caliber playbook in a brief time window, but whatever the reason first year wide outs often struggle, even the best of them.  This can work to your favor in a couple of ways.  In dynasty/keeper leagues you can target these guys as trade bait late in the season, or often just pick them up on the waiver wire because they disappointed their drafters.   The other side of the coin is that they often get much better in their second and third years, making them values at their draft position because people have lowered their expectations from their lack-luster rookie performances.</p>
+				<p class="p2header">APPROACHING 30:</p>
+				<p>Statistically speaking decline comes as players age, unfortunately for running backs that age comes quicker than most positions in the NFL.  As RB’s age their bodies take a toll and younger, fresher bodies are available (often cheaply in drafts) to replace them.  Be wary of drafting older running backs with top picks, that 22-26-year age is the prime time for this position.  Running backs seem to perform much better their rookie years than their wide receiver counterparts so keep that in mind when drafting.  Once again, the corollary can offer value as well, there are some workhorses in their late careers that can pass the test of time and offer value as running back starters in middle rounds where the position gets scarce.</p>
+				<p class="p2header">SUSPENSIONS:</p>
+				<p>While it can be fun to roster an outlaw team in fantasy football, you must understand how to value suspended players.  Projections often due them injustice because looking at the number alone doesn’t consider that you aren’t going to leave that spot empty on your bench, the next available player will step in those weeks.  So, while a Mark Ingram may only be predicted to score 177 points in PPR, if you consider that the 4 weeks he is gone you can fill in his position with a modest 10 points per week (lets aim low) you can value his real projection as 217 points, making him more of an asset for your team.  The second consideration with suspensions is when they will occur.  Typically, this is at the beginning of a season barring appeals, which is in your favor.  You want these guys around for your playoff run, or at the very least as trade bait for next year if your season is not going the way you want.</p>
+				<p class="p2header">SIZE MATTERS:</p>
+				<p>A lot our sources focus on your scoring settings, which don’t get me wrong is important.  It typically be simplified to two important values.  Do quarterbacks get 4 or 6 points per touchdown, and more importantly are points rewarded for reception.  You already know this stuff though, and projected points often already account for this.  What it is less commonly analyzed is how your league size affects your strategy.  League sizes typically vary from 8 to 14 teams.  In smaller 8 or 10 team leagues you are going to have options at all positions later in your draft, in larger leagues you are going to have to make decisions.  This will change your draft strategy significantly.  In 12 and 14 team leagues starting running backs are going to be off the board in the fourth or fifth round.  If you didn’t grab a couple you are going to be scrapping all year.  The waiver wire for running backs is not your friend in 14 team leagues.  This can work to your favor or disadvantage.  The zero running back strategy capitalized on this positional deficiency by maximizing the value at the wide receiver and tight end positions in the first four rounds.  It mitigated it by selecting a disproportionate amount of running backs with later picks in hoping of increasing the odds of finding starting caliber talent.  The reason the traditional RB/RB draft strategy is preached is because of this positional scarcity, it sets you up for getting quality starters at the position and maximizing value of wide receivers which can be done in the middle rounds of the draft.  You can take this to the extreme in larger leagues as well and draft running backs with four or five of your first six picks.  If some are busts you have the depth to handle this, if you have a surplus after the first few weeks of the season settle out you have excellent trade value for any position you lack.  You can always trade a quality running back in a large league, always…</p>
+				<p class="p2header">KNOW YOUR ROLE:</p>
+				<p>Your role as a fantasy manager is to draft the best possible team.  It is a long season, but leagues are won and lost during the draft.  You will set yourself up for success or failure, but only marginal gains will typically be made through trades or the waiver wire.  You cannot go into the draft with a pre-conceived notion of what your precise strategy is.  There are too many variables and things will not go your way.  I cannot stand mock drafts because people often leave the draft early and they do not give a true prediction as to who will be valued.  Find some free or low-cost leagues that draft ahead of your bigger money leagues.  You will see patterns and trends that will persist and be able to know if that sleeper you want is common knowledge to the fantasy football realm.  If you enter with the top overall pick you may have to abandon or modify your no RB strategy, if you draft at the turn of rounds 1 and 2 in a snake draft you must consider the talent level at each position that will disappear before you get to make another pick.  Be adaptive, know the players you want.  After you have drafted your starters there is no such thing as a reach.  Use your eighth-round pick on a sleeper if you think he has top ten potential at his position, odds are if you are thinking it so is someone else.  Don’t be left in the dust.  Maximize the value of your early round picks, don’t pass over a quality starter on a hunch.  Remember this advice and best of luck on draft day.</p>
+			</div>
+		</div>	
 		
 		<!--
 		{{!-- intro --}}
