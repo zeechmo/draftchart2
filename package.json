@@ -8,10 +8,10 @@
   "author": "author goes here",
   "license": "MIT",
   "dependencies": {
-    "enduro": "*",
     "body-parser": "^1.17.2",
     "csv-to-json": "^0.1.2",
-    "express": "^4.15.4",
+    "enduro": "*",
+    "express": "^4.17.1",
     "gridstack": "^0.3.0",
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",
